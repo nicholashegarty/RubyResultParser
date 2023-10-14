@@ -1,0 +1,113 @@
+
+<div class="w-full h-96 relative bg-white flex items-center justify-center">
+    <div class="w-full flex items-center justify-center h-20 left-0 top-0 absolute bg-navbg">
+        <div class="absolute text-sky-800 text-4xl font-medium font-['Inter'] leading-10">Nav Bar</div>
+    </div>
+    <div class="w-2/3 h-28 mx-auto top-[167px] absolute shadow-xl">
+        <div class="w-96 h-28 left-0 top-0 absolute bg-white rounded-lg"></div>
+        <div class="w-14 h-5 left-[167px] top-[13px] absolute text-zinc-800 text-base font-medium font-['Inter']">Format</div>
+        <div class="w-20 h-5 left-[254px] top-[13px] absolute text-zinc-800 text-base font-medium font-['Inter']">Comment</div>
+        <div class="w-11 left-[14px] top-[13px] absolute text-zinc-800 text-base font-medium font-['Inter']">Code</div>
+        <div class="w-12 h-5 left-[88px] top-[13px] absolute text-zinc-800 text-base font-medium font-['Inter']">Result</div>
+        <div class="w-28 h-px left-[74px] top-[112px] absolute origin-top-left -rotate-90 border border-zinc-500"></div>
+        <div class="w-28 h-px left-[153px] top-[112px] absolute origin-top-left -rotate-90 border border-zinc-500"></div>
+        <div class="w-28 h-px left-[240px] top-[112px] absolute origin-top-left -rotate-90 border border-zinc-500"></div>
+        <div class="w-full h-px mx-auto top-[41.25px] absolute -rotate-180 border border-zinc-500"></div>
+
+        <% @parsed_results.each do |k,v| %> 
+            <div id=<%= k.to_s  %>  class="hidden">
+                <div class="left-[14px] top-[68px] absolute text-black text-sm font-normal font-['Inter'] leading-tight"><%= v[0]  %> </div>
+                <div class="left-[88px] top-[68px] absolute text-black text-sm font-normal font-['Inter'] leading-tight"><%= v[1]  %> </div>
+                <div class="left-[165px] top-[68px] absolute text-black text-sm font-normal font-['Inter'] leading-tight"><%= v[2]  %> </div>
+                <div class="left-[251px] right-[25px]  top-[48px] h-[60px] overflow-scroll absolute text-black text-sm font-normal font-['Inter'] leading-tight"><%= simple_format(v[3])  %> </div>
+            </div>
+        <% end %> 
+
+        <button onClick="prevResult()" id="up" class=" hidden w-[20px] h-[20px] absolute right-[2px] top-[43px]"> ⬆️ </button>
+        <button onClick="nextResult()" id="down" class=" hidden w-[20px] h-[20px] absolute right-[2px] bottom-[5px]"> ⬇️ </button>
+    </div>
+
+    <div class="w-2/3 text-left top-[371px] absolute text-black text-xl font-normal font-['Inter'] leading-normal">Upload Another File</div>
+
+    <div class="w-2/3 h-72 mx-auto top-[427px] absolute bg-white rounded-lg shadow-xl">
+        <%= form_tag({controller: 'parser', action: 'create'}, multipart: true, id: 'upload-form') do %>
+            <div class="h-20 left-[23px] top-[88px] right-[23px] absolute flex-col justify-start items-start gap-1 inline-flex">
+                <div class="text-zinc-800 text-base font-bold font-['Inter'] leading-normal">*File</div>
+                <div id="select-file" class="self-stretch p-2 rounded-lg border border-neutral-300 justify-start items-center gap-2 inline-flex">
+                    <div class="px-2 py-1 bg-zinc-100 justify-center items-center gap-2 flex">
+                        <label for="file-input" class="cursor-pointer">
+                            <div class="text-zinc-800 text-base font-normal font-['Inter'] leading-normal">Choose File</div>
+                            <input type="file" id="file-input" name="file" class="hidden" onchange="updateFileName(this)">
+                        </label>
+                    </div>
+                    <div class="text-zinc-500 text-sm font-normal font-['Inter'] leading-tight" id="file-name">No file chosen</div>
+                </div>
+            </div>
+
+            <div class="left-[23px] top-[30px] absolute text-black text-xl font-medium font-['Inter'] leading-normal">Upload File</div>
+            <div id="submit-btn" class="right-[23px] bottom-[23px] absolute justify-start items-start inline-flex">
+                <button id="btn" type="button" class="px-4 py-2 bg-neutral-300 rounded-sm justify-center items-center gap-2 flex" onclick="submitForm()">
+                    <div class="text-white text-base font-medium font-['Inter'] leading-normal">Submit</div>
+                </button>
+            </div>
+            
+        <% end %>
+    </div>
+<div>
+
+
+<script>
+
+var result_count = 0; //will track which of the results is currently displayed
+document.getElementById("0").style.display = "block"; //display first result, all others hidden by default
+
+const upArrow = document.getElementById("up");
+const downArrow = document.getElementById("down");
+
+const result_length = <%= @parsed_results.length %>;
+
+if (result_length > 1) {
+    downArrow.style.display = "block"; //hidden otherwise as none to scroll through
+}
+
+function prevResult() {
+    downArrow.style.display = "block"; //if going back up, logically there is something below for the arrow
+    var curr_res = document.getElementById(result_count.toString());
+    var prev_res = document.getElementById((result_count - 1).toString());
+    curr_res.style.display = "none"; //swap which of the results is visible
+    prev_res.style.display = "block";
+    result_count -= 1; //keep track of active result
+    if (result_count === 0) {
+        upArrow.style.display = "none"; //no more results above first result
+    }
+}
+
+function nextResult() { //similar to prevResult
+    upArrow.style.display = "block"; 
+    var curr_res = document.getElementById(result_count.toString());
+    var next_res = document.getElementById((result_count + 1).toString());
+    curr_res.style.display = "none";
+    next_res.style.display = "block";
+    result_count += 1;
+    if (result_count === (result_length-1)) {
+        downArrow.style.display = "none";
+    }
+}
+
+function updateFileName(input) { //changes the string saying "no file chosen" to file name
+            var fileName = input.files[0].name;
+            document.getElementById('file-name').textContent = fileName;
+            var btn  = document.getElementById('btn');
+            btn.style.backgroundColor = '#2CD0B4'
+        }
+
+    function submitForm() { //if a file has been added, that isnt empty, submits it to controller
+        var fileInput = document.getElementById('file-input'); 
+        if (fileInput.files.length > 0) {
+            document.getElementById('upload-form').submit(); 
+        } else {
+            alert('Please choose a file to upload.');
+        }
+    }
+
+</script>

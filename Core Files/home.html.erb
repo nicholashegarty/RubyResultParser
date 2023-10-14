@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rails Tailwind File Upload</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="w-full h-96 relative bg-white flex items-center justify-center">
+        <div class="w-full flex items-center justify-center h-20 left-0 top-0 absolute bg-navbg">
+            <div class="mx-auto absolute text-sky-800 text-4xl font-medium font-['Inter'] leading-10">Nav Bar</div>
+        </div>
+
+  
+        <div class="w-2/3 h-72 mx-auto top-[198px] absolute bg-white rounded-lg shadow-xl">
+            <%= form_tag({controller: 'parser', action: 'create'}, multipart: true, id: 'upload-form') do %>
+
+                <div class="h-20 left-[23px] top-[88px] right-[23px] absolute flex-col justify-start items-start gap-1 inline-flex">
+                    <div class="text-zinc-800 text-base font-bold font-['Inter'] leading-normal">*File</div>
+                    <div id="select-file" class="self-stretch p-2 rounded-lg border border-neutral-300 justify-start items-center gap-2 inline-flex">
+                        <div class="px-2 py-1 bg-zinc-100 justify-center items-center gap-2 flex">
+                            <label for="file-input" class="cursor-pointer">
+                                <div class="text-zinc-800 text-base font-normal font-['Inter'] leading-normal">Choose File</div>
+                                <input type="file" id="file-input" name="file" class="hidden" onchange="updateFileName(this)">
+                            </label>
+                        </div>
+                        <div class="text-zinc-500 text-sm font-normal font-['Inter'] leading-tight" id="file-name">No file chosen</div>
+                    </div>
+                </div>
+
+                <div class="left-[23px] top-[30px] absolute text-black text-xl font-medium font-['Inter'] leading-normal">Upload File</div>
+                <div id="submit-btn" class="right-[23px] bottom-[23px] absolute justify-start items-start inline-flex">
+                    <button id="btn" type="button" class="px-4 py-2 bg-neutral-300 rounded-sm justify-center items-center gap-2 flex" onclick="submitForm()">
+                        <div class="text-white text-base font-medium font-['Inter'] leading-normal">Submit</div>
+                    </button>
+                </div>
+            <% end %>
+        </div>
+
+
+        
+
+    </div>
+
+
+
+    <script>
+    function updateFileName(input) { //changes the string saying "no file chosen" to file name
+            var fileName = input.files[0].name;
+            document.getElementById('file-name').textContent = fileName;
+            var btn  = document.getElementById('btn');
+            btn.style.backgroundColor = '#2CD0B4'
+        }
+
+    function submitForm() { //if a file has been added, that isnt empty, submits it to controller
+        var fileInput = document.getElementById('file-input'); // Assuming your file input has id="file-input"
+        if (fileInput.files.length > 0) {
+            document.getElementById('upload-form').submit(); // Replace 'upload-form' with the actual ID of your form
+        } else {
+            alert('Please choose a file to upload.');
+        }
+    }
+    </script>
+</body>
+
+</html>
